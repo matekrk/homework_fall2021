@@ -87,6 +87,14 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # query the policy with observation(s) to get selected action(s)
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         # TODO: get this from HW1
+        if len(obs.shape) > 1:
+            observation = obs
+        else:
+            observation = obs[None]
+
+        input_tensor = torch.tensor(observation, dtype=torch.float).to(ptu.device)
+        output_tensor = self.forward(input_tensor)
+        return output_tensor.sample().cpu().detach().numpy()
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
