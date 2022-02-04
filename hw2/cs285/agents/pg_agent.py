@@ -46,10 +46,10 @@ class PGAgent(BaseAgent):
         # HINT2: look at the MLPPolicyPG class for how to update the policy
             # and obtain a train_log
 
-        q_values = calculate_q_vals(rewards_list)
-        advantages = estimate_advantage(observations, rewards_list, q_values, terminals)
+        q_values = self.calculate_q_vals(rewards_list)
+        advantages = self.estimate_advantage(observations, rewards_list, q_values, terminals)
 
-        train_log = self.actor.update(observations, actions, advantages, q_values)  # HW1: you will modify this
+        train_log = self.actor.update(observations, actions, advantages, q_values)
         return train_log
 
     def calculate_q_vals(self, rewards_list):
@@ -74,12 +74,13 @@ class PGAgent(BaseAgent):
         # ordering as observations, actions, etc.
 
         if not self.reward_to_go:
-            TODO
+            for i_traj in range(len(rewards_list)):
+                self._discounted_cumsum()
 
         # Case 2: reward-to-go PG
         # Estimate Q^{pi}(s_t, a_t) by the discounted sum of rewards starting from t
         else:
-            TODO
+            for i_traj in range(len())
 
         return q_values
 
@@ -165,6 +166,17 @@ class PGAgent(BaseAgent):
 
         # TODO: create list_of_discounted_returns
 
+        # the same value
+        gammas = self.gamma ** np.arange(len(rewards))
+        sum_weighted_rewards = np.sum(gammas * rewards)
+        list_of_discounted_returns = [sum_weighted_rewards] * len(rewards)
+        return list_of_discounted_returns
+        
+        
+        list_of_discounted_returns = [0] * len(rewards)
+        list_of_discounted_returns[0] = rewards[0]
+        for i in range(1, list_of_discounted_returns):
+            list_of_discounted_returns[i] = list_of_discounted_returns[-1] + self.gamma * rewards[i]
         return list_of_discounted_returns
 
     def _discounted_cumsum(self, rewards):
@@ -177,5 +189,8 @@ class PGAgent(BaseAgent):
         # TODO: create `list_of_discounted_returns`
         # HINT: it is possible to write a vectorized solution, but a solution
             # using a for loop is also fine
-
-        return list_of_discounted_cumsums
+        gammas = self.gamma ** np.arange(len(rewards))
+        weighted_rewards = gammas * rewards
+        inv_cumsum_weighted_rewards = np.cumsum(np.array(weighted_rewards)[::-1])
+        list_of_discounted_returns = list(inv_cumsum_weighted_rewards[::-1])
+        return list_of_discounted_returns
