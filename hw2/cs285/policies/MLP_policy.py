@@ -145,7 +145,22 @@ class MLPPolicyPG(MLPPolicy):
         # HINT4: use self.optimizer to optimize the loss. Remember to
             # 'zero_grad' first
 
-        TODO
+        self.optimizer.zero_grad()
+
+        observations = torch.tensor(
+            observations, device=ptu.device, dtype=torch.float)
+        actions = torch.tensor(
+            actions, device=ptu.device,
+            dtype=torch.int if self.discrete else torch.float)
+        output_actions_distribution = self(observations)
+
+        # loss = -output_actions_distribution.log_prob(actions).mean()
+        square_bracket = np.log( * advantages )
+        loss_to_max = - np.sum(square_bracket)
+        
+        loss_to_max.backward()
+        self.optimizer.step()
+        
 
         if self.nn_baseline:
             ## TODO: update the neural network baseline using the q_values as
@@ -157,10 +172,10 @@ class MLPPolicyPG(MLPPolicy):
             ## HINT2: You will need to convert the targets into a tensor using
                 ## ptu.from_numpy before using it in the loss
 
-            TODO
+            bs = self.run_baseline_prediction(observations)
 
         train_log = {
-            'Training Loss': ptu.to_numpy(loss),
+            'Training Loss': ptu.to_numpy(loss_to_max),
         }
         return train_log
 

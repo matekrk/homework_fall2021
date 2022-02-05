@@ -73,14 +73,17 @@ class PGAgent(BaseAgent):
         # HINT3: q_values should be a 1D numpy array where the indices correspond to the same
         # ordering as observations, actions, etc.
 
+        q_values = np.zeros(len(rewards_list))
+
         if not self.reward_to_go:
             for i_traj in range(len(rewards_list)):
-                self._discounted_cumsum()
+                list_same_ret = self._discounted_return(rewards_list[i_traj])
 
         # Case 2: reward-to-go PG
         # Estimate Q^{pi}(s_t, a_t) by the discounted sum of rewards starting from t
         else:
-            for i_traj in range(len())
+            for i_traj in range(len(rewards_list)):
+                list_disc_ret = self._discounted_cumsum(rewards_list[i_traj])
 
         return q_values
 
@@ -100,7 +103,7 @@ class PGAgent(BaseAgent):
             ## TODO: values were trained with standardized q_values, so ensure
                 ## that the predictions have the same mean and standard deviation as
                 ## the current batch of q_values
-            values = TODO
+            values = values_unnormalized * np.std(q_values) + np.mean(q_values)
 
             if self.gae_lambda is not None:
                 ## append a dummy T+1 value for simpler recursive calculation
@@ -123,6 +126,11 @@ class PGAgent(BaseAgent):
                     ## HINT 2: self.gae_lambda is the lambda value in the
                         ## GAE formula
 
+                    if terminals[i] == 1:
+                        advantages[i] = rews - values[i]
+                    else:
+                        advantages[i] = advantages[i+1] * self.gae_lambda * self.gamma
+
                 # remove dummy advantage
                 advantages = advantages[:-1]
 
@@ -138,7 +146,7 @@ class PGAgent(BaseAgent):
         if self.standardize_advantages:
             ## TODO: standardize the advantages to have a mean of zero
             ## and a standard deviation of one
-            advantages = TODO
+            advantages = 1/np.std(advantages) * ( advantages - np.mean(advantages) )
 
         return advantages
 
