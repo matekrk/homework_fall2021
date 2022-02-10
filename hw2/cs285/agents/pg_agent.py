@@ -26,7 +26,8 @@ class PGAgent(BaseAgent):
             self.agent_params['size'],
             discrete=self.agent_params['discrete'],
             learning_rate=self.agent_params['learning_rate'],
-            nn_baseline=self.agent_params['nn_baseline']
+            nn_baseline=self.agent_params['nn_baseline'],
+            device = self.agent_params['device']
         )
 
         # replay buffer
@@ -46,8 +47,22 @@ class PGAgent(BaseAgent):
         # HINT2: look at the MLPPolicyPG class for how to update the policy
             # and obtain a train_log
 
-        q_values = self.calculate_q_vals(rewards_list)
-        advantages = self.estimate_advantage(observations, rewards_list, q_values, terminals)
+        if not self.use_gae:
+            rewards_concat = np.concatenate(rewards_list) # [N,]
+            std_rewards, mean_rewards = np.std(rewards_concat), np.mean(rewards_concat)
+            b_unnormalized_obs = self.actor.run_baseline_prediction(observations)
+            b_normalized_obs = b_unnormalized_obs * std_rewards + mean_rewards
+            b_unnormalized_next_obs = self.actor.run_baseline_prediction(next_observations)
+            b_normalized_next_obs = b_unnormalized_next_obs * std_rewards + mean_rewards
+            delta = rewards_concat + (1 - terminals) * self.gamma * b_normalized_next_obs - b_normalized_obs
+
+            advantage_values = self.estimate_advantage_gae(delta, rewards_list)
+            q_values = advantage_values + b_normalized_obs
+            advantage_values = (advantage_values - np.mean(advantage_values)) / (np.std(advantage_values) + 1e-8)
+
+        else:
+            q_values = self.calculate_q_vals(rewards_list)
+            advantages = self.estimate_advantage(observations, rewards_list, q_values, terminals)
 
         train_log = self.actor.update(observations, actions, advantages, q_values)
         return train_log
@@ -73,17 +88,14 @@ class PGAgent(BaseAgent):
         # HINT3: q_values should be a 1D numpy array where the indices correspond to the same
         # ordering as observations, actions, etc.
 
-        q_values = np.zeros(len(rewards_list))
-
         if not self.reward_to_go:
-            for i_traj in range(len(rewards_list)):
-                list_same_ret = self._discounted_return(rewards_list[i_traj])
-
+            q_values = np.concatenate([self._discounted_return(r) for r in rewards_list])
+        
         # Case 2: reward-to-go PG
         # Estimate Q^{pi}(s_t, a_t) by the discounted sum of rewards starting from t
+        
         else:
-            for i_traj in range(len(rewards_list)):
-                list_disc_ret = self._discounted_cumsum(rewards_list[i_traj])
+            q_values = np.concatenate([self._discounted_return(r) for r in rewards_list])
 
         return q_values
 
