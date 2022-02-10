@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{subcaption}
+\usepackage[section]{placeins}
+\usepackage{fancybox}
+\usepackage{tikz}
+
+\usepackage{amssymb}
+
+%\usepackage{amsfont}
+%\usepackage{amsmath}
+%\usepackage{amssymb}
+
+
+
+\title{Homework 1}
+\author{Mateusz Pyla - Thomas Georges - Brahim Driss}
+\date{January 2022}
+
+\begin{document}
+
+\maketitle
+
+\section{Behavioral Cloning}
+\subsection{Question 1-2}
+The parameters used for this experiment are the following :
+\begin{itemize}
+  \item \textbf{ep\_len : } 1000
+  \item \textbf{num\_agent\_train\_steps\_per\_iter : } 10000
+  \item \textbf{batch\_size : } 1000
+  \item \textbf{eval\_batch\_size : } 10000
+  \item \textbf{train\_batch\_size : } 1
+  \item \textbf{max\_replay\_buffer\_size : } 1
+  \item \textbf{n\_layers : } 2
+  \item \textbf{size : } 64
+  \item \textbf{learning\_rate : } 5e-3
+  \item \textbf{seed : } 1
+  
+  
+  
+\end{itemize}
+
+\begin{table}[h]
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Env} & \textbf{Expert} & \textbf{BC Eval} & \textbf{Percentage of Expert} \\ \hline
+Ant-v2       & 4713.65       & 4683.80 \pm 134.97        & 99.3\%                        \\ \hline
+Hopper-v2    & 3772.67       & 875.75 \pm 202.49         & 23\%                          \\ \hline
+\end{tabular}
+\caption{Results for Behavioral Cloning}
+\end{table}
+
+
+
+\subsection{Question 1-2}
+The parameters used for this experiment are the following :
+\begin{itemize}
+  \item \textbf{ep\_len : } 1000
+  \item \textbf{num\_agent\_train\_steps\_per\_iter : } variable
+  \item \textbf{batch\_size : } 1000
+  \item \textbf{eval\_batch\_size : } 5000
+  \item \textbf{train\_batch\_size : } 1
+  \item \textbf{max\_replay\_buffer\_size : } 1
+  \item \textbf{n\_layers : } 2
+  \item \textbf{size : } 64
+  \item \textbf{learning\_rate : } 5e-3
+  \item \textbf{seed : } 1
+  
+  
+  
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width = 0.55\textwidth]{Pictures/fig_1.png}
+    \caption{Train steps impact on BC performance }
+\end{figure}
+
+
+%\bibliographystyle{plain}
+%\bibliography{main}
+\end{document}
