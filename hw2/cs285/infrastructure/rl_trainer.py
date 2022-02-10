@@ -153,7 +153,7 @@ class RL_Trainer(object):
     ####################################
     ####################################
 
-    def collect_training_trajectories(self, itr, initial_expertdata, collect_policy, batch_size):
+    def collect_training_trajectories(self, itr, load_initial_expertdata, collect_policy, batch_size):
         # TODO: GETTHIS from HW1
 
         print("\nCollecting data to be used for training...")
