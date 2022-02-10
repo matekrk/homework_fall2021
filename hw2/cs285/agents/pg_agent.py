@@ -115,11 +115,11 @@ class PGAgent(BaseAgent):
             ## TODO: values were trained with standardized q_values, so ensure
                 ## that the predictions have the same mean and standard deviation as
                 ## the current batch of q_values
-            values = values_unnormalized * np.std(q_values) + np.mean(q_values)
+            values_normalized = values_unnormalized * np.std(q_values) + np.mean(q_values) 
 
             if self.gae_lambda is not None:
                 ## append a dummy T+1 value for simpler recursive calculation
-                values = np.append(values, [0])
+                values = np.append(values_normalized, [0])
 
                 ## combine rews_list into a single array
                 rews = np.concatenate(rews_list)
@@ -137,11 +137,13 @@ class PGAgent(BaseAgent):
                         ## 0 otherwise.
                     ## HINT 2: self.gae_lambda is the lambda value in the
                         ## GAE formula
-
                     if terminals[i] == 1:
-                        advantages[i] = rews - values[i]
+                        term = 1
                     else:
-                        advantages[i] = advantages[i+1] * self.gae_lambda * self.gamma
+                        term = 0
+                    delta = rews[i] + (self.gamma * values[i] * term) - values[i]
+                    advantages[i] = delta + (self.gamma * self.gae_lamda * advantages[i + 1] * term)
+
 
                 # remove dummy advantage
                 advantages = advantages[:-1]
@@ -149,9 +151,7 @@ class PGAgent(BaseAgent):
             else:
                 ## TODO: compute advantage estimates using q_values, and values as baselines
                 
-                #?
-                batch_size = obs.shape[0]
-                advantages = np.zeros(batch_size + 1)
+                advantages = q_values - values_unnormalized
 
                 
 
@@ -198,12 +198,13 @@ class PGAgent(BaseAgent):
         list_of_discounted_returns = [sum_weighted_rewards] * len(rewards)
         return list_of_discounted_returns
         
-        
+        """
         list_of_discounted_returns = [0] * len(rewards)
         list_of_discounted_returns[0] = rewards[0]
         for i in range(1, list_of_discounted_returns):
             list_of_discounted_returns[i] = list_of_discounted_returns[-1] + self.gamma * rewards[i]
         return list_of_discounted_returns
+        """
 
     def _discounted_cumsum(self, rewards):
         """
