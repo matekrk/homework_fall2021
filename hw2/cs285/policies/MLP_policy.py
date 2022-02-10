@@ -23,6 +23,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
                  learning_rate=1e-4,
                  training=True,
                  nn_baseline=False,
+                 device='gpu',
                  **kwargs
                  ):
         super().__init__(**kwargs)
@@ -36,6 +37,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         self.learning_rate = learning_rate
         self.training = training
         self.nn_baseline = nn_baseline
+        self.device = device
 
         if self.discrete:
             self.logits_na = ptu.build_mlp(input_size=self.ob_dim,
