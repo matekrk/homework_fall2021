@@ -136,7 +136,13 @@ class PGAgent(BaseAgent):
 
             else:
                 ## TODO: compute advantage estimates using q_values, and values as baselines
-                advantages = TODO
+                
+                #?
+                batch_size = obs.shape[0]
+                advantages = np.zeros(batch_size + 1)
+
+                
+
 
         # Else, just set the advantage to [Q]
         else:
