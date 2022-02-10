@@ -141,7 +141,7 @@ class PGAgent(BaseAgent):
                         term = 1
                     else:
                         term = 0
-                    delta = rews[i] + (self.gamma * values[i] * term) - values[i]
+                    delta = rews[i] + (self.gamma * values[i+1] * term) - values[i]
                     advantages[i] = delta + (self.gamma * self.gae_lamda * advantages[i + 1] * term)
 
 
